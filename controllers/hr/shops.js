@@ -1,0 +1,483 @@
+const db = require('../../models/sequelize');
+const shop = db.shop;
+const Op = db.Sequelize.Op;
+const fs = require('fs');
+
+exports.search = async (req, rpp, page, callBack) => {
+    let where;
+    if(req.description!==undefined){
+      where = {
+        [Op.or]: [
+        {
+          description: {
+            [Op.like]: '%'+req.description+'%'
+          }
+        },
+        {
+          code: {
+            [Op.like]: '%'+req.description+'%'
+          }
+        }
+      ]};
+    }
+    else{
+      where = {};
+    }
+    if(req.id!==undefined){
+      where.id = req.id;
+    }
+    if(req.status!==undefined){
+      where.status = req.status;
+    }
+    if(req.estateId!==undefined){
+      where.estate_id = req.estateId;
+    }
+    if(req.divisionId!==undefined){
+      where.division_id = req.divisionId;
+    }
+    if(req.user_type===5){
+      where.estate_id = {
+        [Op.in]: req.estates
+      };
+    }
+    if(req.user_type===7){
+      where.division_id = {
+        [Op.in]: req.divisions
+      };
+    }
+    if(req.user_type===10){
+      where.id = {
+        [Op.in]: req.shops
+      };
+    }
+    if(rpp===0){
+      shop.findAndCountAll({
+        attributes: ['id', 'estate_id', 'division_id', 'code', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
+        include: [
+          {
+            model: db.estate,
+            attributes: ['description', 'code', 'color']
+          },
+          {
+            model: db.division,
+            attributes: ['description', 'code', 'color']
+          }
+        ],
+        order: [[req.sortBy, req.order]],
+        where: where
+      })
+      .then(data=>{
+        var rowCount = data.rows.length;
+        var numOfPages = Math.ceil(rowCount/rpp);
+        if(numOfPages == 0){
+          numOfPages = 1;
+        }
+        if(page > numOfPages){
+          page = numOfPages;
+        }
+        var start = rpp * (page-1);
+        var data1 ={
+          data: data.rows,
+          row_count: rowCount,
+          nop: numOfPages,
+          start: start
+        };
+        callBack({error:false, data:data1, errorMessage:""});
+      })
+      .catch(err=>{
+        callBack({error:true, data:null, errorMessage:err});
+      });
+    }
+    else{
+        try{
+          const { count, rows } = await shop.findAndCountAll({
+            attributes: ['id', 'estate_id', 'division_id', 'code', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
+            include: [
+              {
+                model: db.estate,
+                attributes: ['id', 'description', 'color']
+              },
+              {
+                model: db.division,
+                attributes: ['id', 'description', 'color']
+              }
+            ],
+            order: [[req.sortBy, req.order]],
+            where: where,
+            limit: rpp,
+            offset: (page-1)*rpp
+          });
+          var numOfPages = Math.ceil(count/rpp);
+          if(numOfPages == 0){
+            numOfPages = 1;
+          }
+          if(page > numOfPages){
+            page = numOfPages;
+          }
+          var data1 ={
+            data: rows,
+            row_count: count,
+            nop: numOfPages
+          };
+          callBack({error:false, data:data1, errorMessage:""});
+        }
+        catch(err){
+          callBack({error:true, data:null, errorMessage:""});
+        }
+    }
+};
+
+exports.findOne = (req, callBack) => {
+  shop.findOne({
+    attributes: ['id', 'estate_id', 'division_id', 'code', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
+    include: [
+      {
+        model: db.estate,
+        attributes: ['description', 'code']
+      },
+      {
+        model: db.division,
+        attributes: ['description', 'code']
+      },
+      {
+        model: db.shopUser,
+        include: [
+          {
+            model: db.userType,
+            attributes: ['id', 'description']
+          },
+          {
+            model: db.user,
+            attributes: ['id', 'first_name', 'last_name', 'email', 'image_url', 'status']
+          }
+        ],
+        attributes: ['id', 'user_id', 'status']
+      }
+    ],
+    where: {
+      id: req.id
+    }
+  })
+  .then(data=>{
+    callBack({error:false, data:data, errorMessage:""});
+  })
+  .catch(err=>{
+    callBack({error:true, data:null, errorMessage:err});
+  });
+};
+
+exports.findActive = (req, callBack) => {
+  let where = {};
+  where.status = "active";
+  var args = req.search_data;
+  if(args.estateId!==undefined){
+    where.estate_id = args.estateId;
+  }
+  if(args.divisionId!==undefined){
+    where.division_id = args.divisionId;
+  }
+  if(args.user_type===5){
+    where.estate_id = {
+      [Op.in]: args.estates
+    };
+  }
+  if(args.user_type===7){
+    where.division_id = {
+      [Op.in]: args.divisions
+    };
+  }
+  if(args.user_type===10){
+    where.id = {
+      [Op.in]: args.shops
+    };
+  }
+  shop.findAndCountAll({
+    attributes: ['id', 'estate_id', 'division_id', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
+    include: [
+      {
+          model: db.estate,
+          attributes: ['description', 'code']
+      },
+      {
+          model: db.division,
+          attributes: ['description', 'code']
+      }
+    ],
+    where: where
+  })
+  .then(data=>{
+    callBack({error:false, data:data, errorMessage:""});
+  })
+  .catch(err=>{
+    callBack({error:true, data:null, errorMessage:err});
+  });
+};
+
+exports.create = async (req, callBack) => {
+  shop.findOne({
+      attributes: ['id', 'code', 'description'],
+        where: {
+          [Op.or]: [
+            {
+              code: {
+                [Op.eq]: req.body.code
+              }
+            },
+            {
+              description: {
+                [Op.eq]: req.body.description
+              }
+            },
+          ]
+        }
+      })
+      .then(data=>{
+        if(!data){
+          shop.create({
+              estate_id: req.body.estateId,
+              division_id: req.body.divisionId,
+              code: req.body.code,
+              description: req.body.description,
+              color: req.body.color,
+              image_url: 'none',
+              lat: req.body.lat,
+              lng: req.body.lng,
+              status: req.body.status
+          })
+          .then(data1=>{
+            callBack({error:false, status: 'ok', data:data1, errorMessage:""});
+          })
+          .catch(err1=>{
+            callBack({error:true, status: '', data:null, errorMessage:err1});
+          });
+        }
+        else{
+          if(req.body.code===data.code){
+            callBack({error:false, status: "duplicate_code", data:null, errorMessage:""});
+          }
+          else if(req.body.description===data.description){
+            callBack({error:false, status: "duplicate_description", data:null, errorMessage:""});
+          }
+          else{
+            callBack({error:false, status: "duplicate_other", data:null, errorMessage:""});
+          }
+        }
+    })
+    .catch(err=>{
+      callBack({error:true, status: "", data:null, errorMessage:err});
+    });
+};
+
+exports.edit = (req, callBack) => {
+  shop.findOne({
+    attributes: ['id', 'code', 'description'],
+    where: {
+      [Op.or]: [
+        {
+          code: {
+            [Op.and]: {
+              [Op.eq]: req.body.code,
+              [Op.ne]: '',
+            }
+          }
+        },
+        {
+          description: {
+            [Op.and]: {
+              [Op.eq]: req.body.description,
+              [Op.ne]: '',
+            }
+          }
+        }
+      ],
+      id: {
+        [Op.ne]: req.body.id
+      }
+    }
+  })
+  .then(data=>{
+    if(!data){
+      shop.update(
+        {
+          estate_id: req.body.estateId,
+          division_id: req.body.divisionId,
+          code: req.body.code,
+          description: req.body.description,
+          color: req.body.color,
+          lat: req.body.lat,
+          lng: req.body.lng,
+          status: req.body.status
+        }, 
+        {
+          where: {
+            id: req.body.id
+          }
+        }
+      )
+      .then(data1=>{
+        callBack({error:false, status: 'ok', data:data1, errorMessage:""});
+      })
+      .catch(err1=>{
+        callBack({error:true, status: '', data:null, errorMessage:err1});
+      });
+    }
+    else{
+      if(req.body.code===data.code){
+        callBack({error:false, status: "duplicate_code", data:null, errorMessage:""});
+      }
+      else if(req.body.description===data.description){
+        callBack({error:false, status: "duplicate_description", data:null, errorMessage:""});
+      }
+      else{
+        callBack({error:false, status: "duplicate_other", data:null, errorMessage:""});
+      }
+    }
+  })
+  .catch(err=>{
+    callBack({error:true, status: "", data:null, errorMessage:err});
+  });
+};
+
+exports.deleteImage = (req, callBack) => {
+    shop.findOne({
+        attributes: ['image_url'],
+        where: {
+          id: req.body.id
+        }
+    })
+    .then(data=>{
+        if(data.image_url!=="none"){
+            fs.unlink(appRoot + "/" + data.image_url, (err) => {
+              if(err){
+                callBack({error:true, data:null, errorMessage:""});
+              }
+              else{
+                  shop.update(
+                    {
+                        image_url: "none"
+                    }, 
+                    {
+                      where: {
+                        id: req.body.id
+                      }
+                    }
+                )
+                .then(data1=>{
+                    callBack({error:false, data:data1, errorMessage:""});
+                })
+                .catch(err1=>{
+                    callBack({error:true, data:null, errorMessage:err1});
+                });
+              }
+            });
+        }
+        else{
+            callBack({error:false, data:null, errorMessage:""});
+        }
+    })
+    .catch(err=>{
+        callBack({error:true, data:null, errorMessage:err});
+    });
+};
+
+exports.editImage = (req, callBack) => {
+    shop.findOne({
+        attributes: ['image_url'],
+        where: {
+          id: req.body.id
+        }
+    })
+    .then(data=>{
+        var error1 = false;
+        if(data.image_url!=="none"){
+            fs.unlink(appRoot + "/" + data.image_url, (err) => {
+              if(err){
+                error1 = true;
+                callBack({error:true, data:null, errorMessage:err});
+              }
+            });
+        }
+        if(!error1){
+            var path = (req.file.path).replace(appRoot + "/", "");
+            path = (path).replace(appRoot + '\\', "");
+            path = (path).replaceAll('\\', "/");
+            shop.update(
+                {
+                    image_url: path
+                }, 
+                {
+                  where: {
+                    id: req.body.id
+                  }
+                }
+            )
+            .then(data1=>{
+                callBack({error:false, data:path, errorMessage:""});
+            })
+            .catch(err1=>{
+                callBack({error:true, data:null, errorMessage:""});
+            });
+        }
+    })
+    .catch(err=>{
+        callBack({error:true, data:null, errorMessage:""});
+    });
+};
+
+exports.removeUser = (req, callBack) => {
+    db.shopUser.destroy({
+        where: {
+            shop_id: req.shopId,
+            user_id: req.userId,
+        }
+    })
+    .then(data=>{
+        callBack({error:false, data:data, errorMessage:""});
+    })
+    .catch(err => {
+        callBack({error:true, data:null, errorMessage:"!"});
+    });
+};
+
+exports.addUser = (req, callBack) => {
+  db.shopUser.create({
+    shop_id: req.shopId,
+    user_type_id: req.userTypeId,
+    user_id: req.userId,
+    status: 'active',
+  })
+  .then(data1=>{
+    callBack({error:false, data:data1, errorMessage:""});
+  })
+  .catch(err1=>{
+    callBack({error:true, data:null, errorMessage:""});
+  });
+};
+
+exports.changeUserStatus = (req, callBack) => {
+  db.shopUser.update(
+    {
+      status: req.status
+    }, 
+    {
+      where: {
+        shop_id: req.shopId,
+        user_id: req.userId,
+      }
+    }
+  )
+  .then(data1=>{
+    callBack({error:false, data:data1, errorMessage:""});
+  })
+  .catch(err1=>{
+    callBack({error:true, data:null, errorMessage:err1});
+  });
+};
+
+exports.delete = (req, res) => {
+  
+};
+
+exports.deleteAll = (req, res) => {
+  
+};

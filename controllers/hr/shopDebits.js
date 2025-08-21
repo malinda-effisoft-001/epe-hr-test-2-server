@@ -68,6 +68,14 @@ exports.search = async (req, rpp, page, callBack) => {
   if(req.status!==undefined){
     where.status = req.status;
   }
+  if(req.user_type===5){
+    where.user_id = req.user_id_1;
+  }
+  if(req.user_type===6 || req.user_type===7 || req.user_type===8 || req.user_type===9 || req.user_type===10){
+    where.id = {
+      [Op.in]: [0]
+    };
+  }
   if(rpp===0){
       shopDebit.findAndCountAll({
       attributes: ['id', 'from_date', 'to_date', 'user_id', 'estate_id', 'division_id', 'job_id', 'status'],
@@ -177,7 +185,7 @@ exports.findOne = (req, callBack) => {
       },
       {
         model: db.job,
-        attributes: ['id', 'description', 'color']
+        attributes: ['id', 'description', 'shop_pay_type', 'shop_pay_amount', 'color']
       },
       {
         model: db.shopDebitsItem,

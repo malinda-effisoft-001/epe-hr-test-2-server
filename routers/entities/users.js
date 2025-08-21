@@ -45,6 +45,12 @@ router.post("/get-for-shops", async (req, res) => {
     });
 });
 
+router.post("/get-for-medical-centers", async (req, res) => {
+    await controller.getForMedicalCenters(req.body, ({error, data, errorMessage})=>{
+        res.status(200).json({error:error, data:data, errorMessage:errorMessage});
+    });
+});
+
 router.post("/search", async (req, res) => {
     await controller.search(req.body.search_data, req.body.rpp, req.body.page, ({error, data, errorMessage})=>{
         res.status(200).json({error:error, data:data, errorMessage:errorMessage});

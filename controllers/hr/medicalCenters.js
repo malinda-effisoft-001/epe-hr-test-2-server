@@ -1,5 +1,5 @@
 const db = require('../../models/sequelize');
-const shop = db.shop;
+const medicalCenter = db.medicalCenter;
 const Op = db.Sequelize.Op;
 const fs = require('fs');
 
@@ -40,16 +40,16 @@ exports.search = async (req, rpp, page, callBack) => {
         [Op.in]: req.estates
       };
     }
-    else if(req.user_type===10){
+    if(req.user_type===9){
       where.id = {
-        [Op.in]: req.shops
+        [Op.in]: req.medical_centers
       };
     }
-    else if(req.user_type===6 || req.user_type===7 || req.user_type===8 || req.user_type===8 || req.user_type===9){
+    else if(req.user_type===6 || req.user_type===7 || req.user_type===8 || req.user_type===8 || req.user_type===10){
       where.id = -1;
     }
     if(rpp===0){
-      shop.findAndCountAll({
+      medicalCenter.findAndCountAll({
         attributes: ['id', 'estate_id', 'division_id', 'code', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
         include: [
           {
@@ -88,7 +88,7 @@ exports.search = async (req, rpp, page, callBack) => {
     }
     else{
         try{
-          const { count, rows } = await shop.findAndCountAll({
+          const { count, rows } = await medicalCenter.findAndCountAll({
             attributes: ['id', 'estate_id', 'division_id', 'code', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
             include: [
               {
@@ -126,7 +126,7 @@ exports.search = async (req, rpp, page, callBack) => {
 };
 
 exports.findOne = (req, callBack) => {
-  shop.findOne({
+  medicalCenter.findOne({
     attributes: ['id', 'estate_id', 'division_id', 'code', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
     include: [
       {
@@ -138,7 +138,7 @@ exports.findOne = (req, callBack) => {
         attributes: ['description', 'code']
       },
       {
-        model: db.shopUser,
+        model: db.medicalCenterUser,
         include: [
           {
             model: db.userType,
@@ -184,12 +184,12 @@ exports.findActive = (req, callBack) => {
       [Op.in]: args.divisions
     };
   }
-  if(args.user_type===10){
+  if(args.user_type===9){
     where.id = {
-      [Op.in]: args.shops
+      [Op.in]: args.medical_centers
     };
   }
-  shop.findAndCountAll({
+  medicalCenter.findAndCountAll({
     attributes: ['id', 'estate_id', 'division_id', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
     include: [
       {
@@ -212,7 +212,7 @@ exports.findActive = (req, callBack) => {
 };
 
 exports.create = async (req, callBack) => {
-  shop.findOne({
+  medicalCenter.findOne({
     attributes: ['id', 'code', 'description'],
     where: {
       [Op.or]: [
@@ -231,7 +231,7 @@ exports.create = async (req, callBack) => {
   })
   .then(data=>{
     if(!data){
-      shop.create({
+      medicalCenter.create({
         estate_id: req.body.estateId,
         division_id: req.body.divisionId,
         code: req.body.code,
@@ -246,7 +246,7 @@ exports.create = async (req, callBack) => {
         callBack({error:false, status: 'ok', data:data1, errorMessage:""});
       })
       .catch(err1=>{
-        callBack({error:true, status: '', data:null, errorMessage:''});
+        callBack({error:true, status: '', data:null, errorMessage:err1});
       });
     }
     else{
@@ -267,7 +267,7 @@ exports.create = async (req, callBack) => {
 };
 
 exports.edit = (req, callBack) => {
-  shop.findOne({
+  medicalCenter.findOne({
     attributes: ['id', 'code', 'description'],
     where: {
       [Op.or]: [
@@ -295,7 +295,7 @@ exports.edit = (req, callBack) => {
   })
   .then(data=>{
     if(!data){
-      shop.update(
+      medicalCenter.update(
         {
           estate_id: req.body.estateId,
           division_id: req.body.divisionId,
@@ -316,7 +316,7 @@ exports.edit = (req, callBack) => {
         callBack({error:false, status: 'ok', data:data1, errorMessage:""});
       })
       .catch(err1=>{
-        callBack({error:true, status: '', data:null, errorMessage:''});
+        callBack({error:true, status: '', data:null, errorMessage:err1});
       });
     }
     else{
@@ -337,7 +337,7 @@ exports.edit = (req, callBack) => {
 };
 
 exports.deleteImage = (req, callBack) => {
-    shop.findOne({
+    medicalCenter.findOne({
         attributes: ['image_url'],
         where: {
           id: req.body.id
@@ -350,7 +350,7 @@ exports.deleteImage = (req, callBack) => {
                 callBack({error:true, data:null, errorMessage:""});
               }
               else{
-                  shop.update(
+                  medicalCenter.update(
                     {
                         image_url: "none"
                     }, 
@@ -364,7 +364,7 @@ exports.deleteImage = (req, callBack) => {
                     callBack({error:false, data:data1, errorMessage:""});
                 })
                 .catch(err1=>{
-                    callBack({error:true, data:null, errorMessage:''});
+                    callBack({error:true, data:null, errorMessage:err1});
                 });
               }
             });
@@ -379,7 +379,7 @@ exports.deleteImage = (req, callBack) => {
 };
 
 exports.editImage = (req, callBack) => {
-    shop.findOne({
+    medicalCenter.findOne({
         attributes: ['image_url'],
         where: {
           id: req.body.id
@@ -399,7 +399,7 @@ exports.editImage = (req, callBack) => {
             var path = (req.file.path).replace(appRoot + "/", "");
             path = (path).replace(appRoot + '\\', "");
             path = (path).replaceAll('\\', "/");
-            shop.update(
+            medicalCenter.update(
                 {
                     image_url: path
                 }, 
@@ -423,23 +423,23 @@ exports.editImage = (req, callBack) => {
 };
 
 exports.removeUser = (req, callBack) => {
-    db.shopUser.destroy({
-        where: {
-            shop_id: req.shopId,
-            user_id: req.userId,
-        }
-    })
-    .then(data=>{
-        callBack({error:false, data:data, errorMessage:""});
-    })
-    .catch(err => {
-        callBack({error:true, data:null, errorMessage:"!"});
-    });
+  db.medicalCenterUser.destroy({
+    where: {
+      medical_center_id: req.medicalCenterId,
+      user_id: req.userId,
+    }
+  })
+  .then(data=>{
+    callBack({error:false, data:data, errorMessage:""});
+  })
+  .catch(err => {
+    callBack({error:true, data:null, errorMessage:"!"});
+  });
 };
 
 exports.addUser = (req, callBack) => {
-  db.shopUser.create({
-    shop_id: req.shopId,
+  db.medicalCenterUser.create({
+    medical_center_id: req.medicalCenterId,
     user_type_id: req.userTypeId,
     user_id: req.userId,
     status: 'active',
@@ -453,13 +453,13 @@ exports.addUser = (req, callBack) => {
 };
 
 exports.changeUserStatus = (req, callBack) => {
-  db.shopUser.update(
+  db.medicalCenterUser.update(
     {
       status: req.status
     }, 
     {
       where: {
-        shop_id: req.shopId,
+        medical_center_id: req.medicalCenterId,
         user_id: req.userId,
       }
     }
@@ -468,7 +468,7 @@ exports.changeUserStatus = (req, callBack) => {
     callBack({error:false, data:data1, errorMessage:""});
   })
   .catch(err1=>{
-    callBack({error:true, data:null, errorMessage:''});
+    callBack({error:true, data:null, errorMessage:err1});
   });
 };
 

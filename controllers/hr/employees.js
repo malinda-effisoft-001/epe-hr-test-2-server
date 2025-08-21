@@ -116,7 +116,7 @@ exports.search = async (req, rpp, page, callBack) => {
       callBack({error:false, data:data1, errorMessage:""});
     })
     .catch(err=>{
-      callBack({error:true, data:null, errorMessage:err});
+      callBack({error:true, data:null, errorMessage:''});
     });
   }
   else{
@@ -183,7 +183,7 @@ exports.findForEstate = (req, callBack) => {
         callBack({error:false, data:data, errorMessage:""});
     })
     .catch(err=>{
-        callBack({error:true, data:null, errorMessage:err});
+        callBack({error:true, data:null, errorMessage:''});
     });
 };
 
@@ -261,7 +261,7 @@ exports.findForText = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -303,7 +303,7 @@ exports.findActive = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -567,7 +567,7 @@ exports.find = (req, callBack) => {
     }
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -626,7 +626,7 @@ exports.deleteImage = (req, callBack) => {
         if(data.image_url!=="none"){
             fs.unlink(appRoot + "/" + data.image_url, (err) => {
               if(err){
-                callBack({error:true, data:null, errorMessage:err});
+                callBack({error:true, data:null, errorMessage:''});
               }
               else{
                   employee.update(

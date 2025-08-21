@@ -15,7 +15,7 @@ exports.activeTypes = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -40,32 +40,19 @@ exports.getForHr = (req, callBack) => {
         {
           user_type_id: 7
         },
-        {
-          user_type_id: 9
-        },
-        {
-          user_type_id: 10
-        },
     ]};
     userOk = true;
   }
   else if(req.user_type===5){
-    where = {
-      [Op.or]: [
-        {
-          user_type_id: 7
-        },
-        {
-          user_type_id: 9
-        },
-        {
-          user_type_id: 10
-        },
-    ]};
+    where = {user_type_id: 7};
     userOk = true;
   }
-  else if(req.user_type===9){
-    where = {user_type_id: 9};
+  else if(req.user_type===7){
+    where = {id: req.user_id};
+    userOk = true;
+  }
+  else{
+    where = {user_type_id: -1};
     userOk = true;
   }
   where.status = "active";
@@ -84,7 +71,7 @@ exports.getForHr = (req, callBack) => {
       callBack({error:false, data:data, errorMessage:""});
     })
     .catch(err=>{
-      callBack({error:true, data:null, errorMessage:err});
+      callBack({error:true, data:null, errorMessage:''});
     });
   }
   else{
@@ -103,7 +90,8 @@ exports.getForEstates = (req, callBack) => {
         {
           user_type_id: 6
         }
-    ]};
+      ]
+    };
   }
   else if(req.user_type_id===3){
     where = {user_type_id: 5};
@@ -113,7 +101,7 @@ exports.getForEstates = (req, callBack) => {
   }
   where.status = "active";
   user.findAndCountAll({
-    attributes: ['id', 'user_type_id', 'first_name', 'last_name', 'email', 'image_url'],
+    attributes: ['id', 'user_type_id', 'code', 'first_name', 'last_name', 'email', 'image_url'],
     include: [
       {
         model: db.userType,
@@ -126,26 +114,33 @@ exports.getForEstates = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
 exports.getForDivisions = (req, callBack) => {
-  let where = {
-    [Op.or]: [
-      {
-        user_type_id: 7
-      },
-      {
-        user_type_id: 8
-      },
-      {
-        user_type_id: 9
-      }
-  ]};
+  let where = {};
+  if(req.user_type_id===1 || req.user_type_id===2){
+    where = {
+      [Op.or]: [
+        {
+          user_type_id: 7
+        },
+        {
+          user_type_id: 8
+        }
+      ]
+    };
+  }
+  else if(req.user_type_id===3 || req.user_type_id===5){
+    where = {user_type_id: 7};
+  }
+  else if(req.user_type_id===4 || req.user_type_id===6){
+    where = {user_type_id: 8};
+  }
   where.status = "active";
   user.findAndCountAll({
-    attributes: ['id', 'user_type_id', 'first_name', 'last_name', 'email', 'image_url'],
+    attributes: ['id', 'user_type_id', 'code', 'first_name', 'last_name', 'email', 'image_url'],
     include: [
       {
         model: db.userType,
@@ -158,7 +153,7 @@ exports.getForDivisions = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -179,7 +174,28 @@ exports.getForShops = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
+  });
+};
+
+exports.getForMedicalCenters = (req, callBack) => {
+  let where = {user_type_id: 9};
+  where.status = "active";
+  user.findAndCountAll({
+    attributes: ['id', 'user_type_id', 'first_name', 'last_name', 'email', 'image_url'],
+    include: [
+      {
+        model: db.userType,
+        attributes: ['id', 'description']
+      }
+    ],
+    where: where
+  })
+  .then(data=>{
+    callBack({error:false, data:data, errorMessage:""});
+  })
+  .catch(err=>{
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -262,7 +278,7 @@ exports.search = async (req, rpp, page, callBack) => {
             callBack({error:false, data:data1, errorMessage:""});
         })
         .catch(err=>{
-            callBack({error:true, data:null, errorMessage:err});
+            callBack({error:true, data:null, errorMessage:''});
         });
     }
     else{
@@ -297,49 +313,6 @@ exports.search = async (req, rpp, page, callBack) => {
             callBack({error:true, data:null, errorMessage:""});
         }
     }
-};
-
-exports.signinAdmin = (req, callBack) => {
-  let where = {};
-  where.user_type_id = 1;
-  where.email = req.email;
-  user.findOne({ 
-    attributes: ['id', 'first_name', 'last_name', 'email', 'image_url', 'status', 'password'],
-    include: [
-      {
-        model: db.userType,
-        attributes: ['id', 'description']
-      }
-    ],
-    where: where
-  })
-  .then(data => {
-    if(!data){
-      callBack({error:true, data:null, errorMessage:""});
-    } 
-    else{
-      var compareRes = bcrypt.compareSync(req.password, data.password);
-      if(compareRes){
-        const val = {
-          id: data.id,
-          typeId: data.user_type.id,
-          typeDescription: data.user_type.description,
-          name: data.first_name+" "+data.last_name,
-          email: data.email,
-          imageUrl: data.image_url,
-          status: data.status,
-          shops: data.shops_users,
-        };
-        callBack({error:false, data:val, errorMessage:""});
-      }
-      else{
-        callBack({error:true, data:null, errorMessage:""});
-      }
-    };
-  })
-  .catch(err => {
-    callBack({error:true, data:null, errorMessage:''});
-  });
 };
 
 exports.signin = (req, callBack) => {
@@ -398,9 +371,41 @@ exports.signin = (req, callBack) => {
       }
     ]
   };
+  where.status = 'active';
   where.email = req.email;
   user.findOne({ 
-    attributes: ['id', 'user_type_id', 'first_name', 'last_name', 'email', 'image_url', 'status', 'password'],
+    attributes: ['id', 'user_type_id', 'first_name', 'last_name', 'email', 'image_url', 'password'],
+    where: where
+  })
+  .then(data => {
+    if(!data){
+      callBack({error:true, data:null, errorMessage:''});
+    } 
+    else{
+      var compareRes = bcrypt.compareSync(req.password, data.password);
+      if(compareRes){
+        var user_out = {
+          id: data.id,
+          typeId: data.user_type_id,
+          name: data.first_name+" "+data.last_name,
+          email: data.email,
+          imageUrl: data.image_url,
+        };
+        callBack({error:false, data:user_out, errorMessage:''});
+      }
+      else{
+        callBack({error:true, data:null, errorMessage:''});
+      }
+    };
+  })
+  .catch(err => {
+    callBack({error:true, data:null, errorMessage:''});
+  });
+};
+
+exports.findByEmail = (req, callBack) => {
+  user.findOne({
+    attributes: ['id', "user_type_id", 'first_name', 'last_name', 'phone', 'email', 'image_url', 'status'],
     include: [
       {
         model: db.userType,
@@ -417,149 +422,77 @@ exports.signin = (req, callBack) => {
       {
         model: db.shopUser,
         attributes: ['shop_id'],
-      }
-    ],
-    where: where
-  })
-  .then(data => {
-    if(!data){
-      callBack({error:true, data:null, errorMessage:output});
-    } 
-    else{
-var compareRes = bcrypt.compareSync(req.password, data.password);
-      if(compareRes){
-        var estates = [];
-        var divisions = [];
-        var shops = [];
-        if(data.user_type_id===7 || data.user_type_id===8 || data.user_type_id===9){
-          data.division_users.map(val=>{
-            var found = false;
-            estates.map(val1=>{
-              if(val1===val.estate_id){
-                found = true;
-              }
-            });
-            if(!found){
-              estates.push(val.estate_id);
-            }
-            divisions.push(val.division_id);
-          });
-          const val = {
-            id: data.id,
-            typeId: data.user_type.id,
-            typeDescription: data.user_type.description,
-            name: data.first_name+" "+data.last_name,
-            email: data.email,
-            imageUrl: data.image_url,
-            status: data.status,
-            estates: estates,
-            divisions: divisions,
-            shops: shops,
-          };
-          callBack({error:false, data:val, errorMessage:output});
-        }
-        else if(data.user_type_id===5 || data.user_type_id===6){
-          var length = data.estate_users.length;
-          var index = 1;
-          data.estate_users.map(val=>{
-            estates.push(val.estate_id);
-            let retPromise = getDivisions(val.estate_id);
-            retPromise.then(res=>{
-              res.data.map(val1=>{
-                divisions.push(val1.id);
-              });
-              if(index===length){
-                const val = {
-                  id: data.id,
-                  typeId: data.user_type.id,
-                  typeDescription: data.user_type.description,
-                  name: data.first_name+" "+data.last_name,
-                  email: data.email,
-                  imageUrl: data.image_url,
-                  status: data.status,
-                  estates: estates,
-                  divisions: divisions,
-                  shops: shops,
-                };
-                callBack({error:false, data:val, errorMessage:output});
-              }
-              index++;
-            }).catch(err=>{
-              if(index===length){
-                const val = {
-                  id: data.id,
-                  typeId: data.user_type.id,
-                  typeDescription: data.user_type.description,
-                  name: data.first_name+" "+data.last_name,
-                  email: data.email,
-                  imageUrl: data.image_url,
-                  status: data.status,
-                  estates: estates,
-                  divisions: divisions,
-                  shops: shops,
-                };
-                callBack({error:false, data:val, errorMessage:output});
-              }
-              index++;
-            });
-          });
-        }
-        else{
-          const val = {
-            id: data.id,
-            typeId: data.user_type.id,
-            typeDescription: data.user_type.description,
-            name: data.first_name+" "+data.last_name,
-            email: data.email,
-            imageUrl: data.image_url,
-            status: data.status,
-            estates: estates,
-            divisions: divisions,
-            shops: shops,
-          };
-          callBack({error:false, data:val, errorMessage:output});
-        }
-      }
-      else{
-        callBack({error:true, data:null, errorMessage:output});
-      }
-    };
-  })
-  .catch(err => {
-    callBack({error:true, data:null, errorMessage:output});
-  });
-};
-
-exports.findByEmail = (req, callBack) => {
-  var output = [];
-  user.findOne({
-    attributes: ['id', "user_type_id", 'first_name', 'last_name', 'phone', 'email', 'image_url', 'status'],
-    include: [
-      {
-        model: db.userType,
-        attributes: ['id', 'description']
+        include: [
+          {
+            model: db.shop,
+            attributes: ['estate_id', 'division_id'],
+          }
+        ]
       },
       {
-        model: db.estateUser,
-        attributes: ['estate_id'],
-      },
-      {
-        model: db.divisionUser,
-        attributes: ['estate_id', 'division_id'],
+        model: db.medicalCenterUser,
+        attributes: ['medical_center_id'],
+        include: [
+          {
+            model: db.medicalCenter,
+            attributes: ['estate_id', 'division_id'],
+          }
+        ]
       }
     ],
     where: {
-      email: req.email
+      email: req.email,
+      status: 'active'
     }
   })
   .then(data=>{
     if(!data){
-      callBack({error:true, data:null, errorMessage:output});
+      callBack({error:true, data:null, errorMessage:''});
     }
     else{
       var estates = [];
       var divisions = [];
-      if(data.user_type_id===7 || data.user_type_id===8 || data.user_type_id===9){
+      var shops = [];
+      var medical_centers = [];
+      var user_out = {
+        id: data.id,
+        typeId: data.user_type.id,
+        typeDescription: data.user_type.description,
+        name: data.first_name+" "+data.last_name,
+        email: data.email,
+        imageUrl: data.image_url,
+        status: data.status,
+        estates: estates,
+        divisions: divisions,
+        shops: shops,
+        medicalCenters: medical_centers,
+      };
+      if(data.user_type_id===5 || data.user_type_id===6){
+        var length = data.estate_users.length;
+        var index = 1;
+        data.estate_users.map(val=>{
+          estates.push(val.estate_id);
+          let retPromise = getDivisions(val.estate_id);
+          retPromise.then(res=>{
+            divisions.push(...res.data);
+            if(index===length){
+              user_out.estates = estates;
+              user_out.divisions = divisions;
+              callBack({error:false, data:user_out, errorMessage:''});
+            }
+            index++;
+          })
+          .catch(err=>{
+            if(index===length){
+              user_out.estates = estates;
+              user_out.divisions = divisions;
+              callBack({error:false, data:user_out, errorMessage:''});
+            }
+            index++;
+          });
+        });
+      }
+      else if(data.user_type_id===7 || data.user_type_id===8){
         data.division_users.map(val=>{
           var found = false;
           estates.map(val1=>{
@@ -572,80 +505,84 @@ exports.findByEmail = (req, callBack) => {
           }
           divisions.push(val.division_id);
         });
-        const val = {
-          id: data.id,
-          typeId: data.user_type.id,
-          typeDescription: data.user_type.description,
-          name: data.first_name+" "+data.last_name,
-          email: data.email,
-          imageUrl: data.image_url,
-          status: data.status,
-          estates: estates,
-          divisions: divisions,
-        };
-        callBack({error:false, data:val, errorMessage:output});
+        user_out.estates = estates;
+        user_out.divisions = divisions;
+        callBack({error:false, data:user_out, errorMessage:''});
       }
-      else if(data.user_type_id===5 || data.user_type_id===6){
-        var length = data.estate_users.length;
-        var index = 1;
-        data.estate_users.map(val=>{
-          estates.push(val.estate_id);
-          let retPromise = getDivisions(val.estate_id);
-          retPromise.then(res=>{
-            res.data.map(val1=>{
-              divisions.push(val1.id);
-            });
-            if(index===length){
-              const val = {
-                id: data.id,
-                typeId: data.user_type.id,
-                typeDescription: data.user_type.description,
-                name: data.first_name+" "+data.last_name,
-                email: data.email,
-                imageUrl: data.image_url,
-                status: data.status,
-                estates: estates,
-                divisions: divisions,
-              };
-              callBack({error:false, data:val, errorMessage:output});
+      else if(data.user_type_id===9){
+        data.medical_center_users.map(val=>{
+          var found = false;
+          estates.map(val1=>{
+            if(val1===val.val.medical_center.estate_id){
+              found = true;
             }
-            index++;
-          }).catch(err=>{
-            if(index===length){
-              const val = {
-                id: data.id,
-                typeId: data.user_type.id,
-                typeDescription: data.user_type.description,
-                name: data.first_name+" "+data.last_name,
-                email: data.email,
-                imageUrl: data.image_url,
-                status: data.status,
-                estates: estates,
-                divisions: divisions,
-              };
-              callBack({error:false, data:val, errorMessage:output});
-            }
-            index++;
           });
+          if(!found){
+            estates.push(val.medical_center.estate_id);
+          }
+          divisions.map(val1=>{
+            if(val1===val.val.medical_center.division_id){
+              found = true;
+            }
+          });
+          if(!found){
+            divisions.push(val.medical_center.division_id);
+          }
+          medical_centers.map(val1=>{
+            if(val1===val.medical_center_id){
+              found = true;
+            }
+          });
+          if(!found){
+            medical_centers.push(val.medical_center_id);
+          }
         });
+        user_out.estates = estates;
+        user_out.divisions = divisions;
+        user_out.medicalCenters = medical_centers;
+        callBack({error:false, data:user_out, errorMessage:''});
+      }
+      else if(data.user_type_id===10){
+        data.shop_users.map(val=>{
+          var found = false;
+          estates.map(val1=>{
+            if(val1===val.val.shop.estate_id){
+              found = true;
+            }
+          });
+          if(!found){
+            estates.push(val.shop.estate_id);
+          }
+          divisions.map(val1=>{
+            if(val1===val.val.shop.division_id){
+              found = true;
+            }
+          });
+          if(!found){
+            divisions.push(val.shop.division_id);
+          }
+          shops.map(val1=>{
+            if(val1===val.shop_id){
+              found = true;
+            }
+          });
+          if(!found){
+            shops.push(val.shop_id);
+          }
+        });
+        user_out.estates = estates;
+        user_out.divisions = divisions;
+        user_out.shops = shops;
+        callBack({error:false, data:user_out, errorMessage:''});
       }
       else{
-        const val = {
-          id: data.id,
-          typeId: data.user_type.id,
-          typeDescription: data.user_type.description,
-          name: data.first_name+" "+data.last_name,
-          email: data.email,
-          imageUrl: data.image_url,
-          status: data.status,
-          estates: estates,
-          divisions: divisions,
-        };
-        callBack({error:false, data:val, errorMessage:output});
+        callBack({error:false, data:user_out, errorMessage:''});
       }
     }
   })
   .catch(err=>{
+    console.log(9999);
+    console.log(err);
     callBack({error:true, data:null, errorMessage:''});
   });
 };
@@ -657,25 +594,15 @@ function getDivisions(estate_id){
       where: {estate_id: estate_id}
     })
     .then(data=>{
-      resolve({error: false, data: data});
+      var temp = [];
+      data.map(val=>{
+        temp.push(val.dataValues.id);
+      });
+      resolve({error: false, data: temp});
     })
     .catch(err=>{
-      reject({error: true, data: []});
-    });
-  });
-};
-
-function getShops(division_id){
-  return new Promise((resolve, reject)=>{
-    db.shop.findAll({
-      attributes: ['id'],
-      where: {division_id: division_id}
-    })
-    .then(data=>{
-      resolve({error: false, data: data});
-    })
-    .catch(err=>{
-      reject({error: true, data: []});
+      var temp = [];
+      reject({error: true, data: temp});
     });
   });
 };
@@ -911,7 +838,7 @@ exports.find = (req, callBack) => {
         }
     })
     .catch(err=>{
-        callBack({error:true, data:null, errorMessage:err});
+        callBack({error:true, data:null, errorMessage:''});
     });
 };
 
@@ -970,7 +897,7 @@ exports.deleteImage = (req, callBack) => {
         if(data.image_url!=="none"){
             fs.unlink(appRoot + "/" + data.image_url, (err) => {
               if(err){
-                callBack({error:true, data:null, errorMessage:err});
+                callBack({error:true, data:null, errorMessage:''});
               }
               else{
                   user.update(
@@ -987,7 +914,7 @@ exports.deleteImage = (req, callBack) => {
                     callBack({error:false, data:data1, errorMessage:""});
                 })
                 .catch(err1=>{
-                    callBack({error:true, data:null, errorMessage:err1});
+                    callBack({error:true, data:null, errorMessage:''});
                 });
               }
             });
@@ -1019,6 +946,6 @@ exports.resetPassword = async (req, callBack) => {
     callBack({error:false, data:null, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };

@@ -34,6 +34,11 @@ exports.search = async (req, rpp, page, callBack) => {
         [Op.in]: req.estates
       };
     }
+    else if(req.user_type===7 || req.user_type===8 || req.user_type===9 || req.user_type===10){
+      where.id = {
+        [Op.in]: [0]
+      };
+    }
     if(rpp===0){
         estate.findAndCountAll({
             attributes: ['id', 'code', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
@@ -59,7 +64,7 @@ exports.search = async (req, rpp, page, callBack) => {
             callBack({error:false, data:data1, errorMessage:""});
         })
         .catch(err=>{
-            callBack({error:true, data:null, errorMessage:err});
+            callBack({error:true, data:null, errorMessage:''});
         });
     }
     else{
@@ -116,7 +121,7 @@ exports.findOne = (req, callBack) => {
         callBack({error:false, data:data, errorMessage:""});
     })
     .catch(err=>{
-        callBack({error:true, data:null, errorMessage:err});
+        callBack({error:true, data:null, errorMessage:''});
     });
 };
 
@@ -125,11 +130,9 @@ exports.findActive = (req, callBack) => {
   where.status = "active";
   var args = req.search_data;
   if(args.user_type===5 || args.user_type===6 || args.user_type===7 || args.user_type===8 || args.user_type===9 || args.user_type===10){
-    if(args.estates!==undefined){
-      where.id = {
-        [Op.in]: args.estates
-      };
-    }
+    where.id = {
+      [Op.in]: args.estates
+    };
   }
   estate.findAndCountAll({
     attributes: ['id', 'code', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
@@ -139,7 +142,7 @@ exports.findActive = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -168,7 +171,7 @@ exports.findForAttendance = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -205,7 +208,7 @@ exports.create = async (req, callBack) => {
             callBack({error:false, status: 'ok', data:data1, errorMessage:""});
           })
           .catch(err1=>{
-            callBack({error:true, status: '', data:null, errorMessage:err1});
+            callBack({error:true, status: '', data:null, errorMessage:''});
           });
         }
         else{
@@ -221,7 +224,7 @@ exports.create = async (req, callBack) => {
         }
     })
     .catch(err=>{
-      callBack({error:true, status: "", data:null, errorMessage:err});
+      callBack({error:true, status: "", data:null, errorMessage:''});
     });
 };
 
@@ -273,7 +276,7 @@ exports.edit = (req, callBack) => {
         callBack({error:false, status: 'ok', data:data1, errorMessage:""});
       })
       .catch(err1=>{
-        callBack({error:true, status: '', data:null, errorMessage:err1});
+        callBack({error:true, status: '', data:null, errorMessage:''});
       });
     }
     else{
@@ -289,7 +292,7 @@ exports.edit = (req, callBack) => {
     }
   })
   .catch(err=>{
-    callBack({error:true, status: "", data:null, errorMessage:err});
+    callBack({error:true, status: "", data:null, errorMessage:''});
   });
 };
 
@@ -321,7 +324,7 @@ exports.deleteImage = (req, callBack) => {
                     callBack({error:false, data:data1, errorMessage:""});
                 })
                 .catch(err1=>{
-                    callBack({error:true, data:null, errorMessage:err1});
+                    callBack({error:true, data:null, errorMessage:''});
                 });
               }
             });
@@ -331,7 +334,7 @@ exports.deleteImage = (req, callBack) => {
         }
     })
     .catch(err=>{
-        callBack({error:true, data:null, errorMessage:err});
+        callBack({error:true, data:null, errorMessage:''});
     });
 };
 
@@ -348,7 +351,7 @@ exports.editImage = (req, callBack) => {
             fs.unlink(appRoot + "/" + data.image_url, (err) => {
               if(err){
                 error1 = true;
-                callBack({error:true, data:null, errorMessage:err});
+                callBack({error:true, data:null, errorMessage:''});
               }
             });
         }
@@ -425,7 +428,7 @@ exports.changeUserStatus = (req, callBack) => {
     callBack({error:false, data:data1, errorMessage:""});
   })
   .catch(err1=>{
-    callBack({error:true, data:null, errorMessage:err1});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 

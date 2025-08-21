@@ -38,6 +38,8 @@ db.division = require("./schemas/division")(sequelize, Sequelize);
 db.divisionUser = require("./schemas/divisionUser")(sequelize, Sequelize);
 db.shop = require("./schemas/shop")(sequelize, Sequelize);
 db.shopUser = require("./schemas/shopUser")(sequelize, Sequelize);
+db.medicalCenter = require("./schemas/medicalCenter")(sequelize, Sequelize);
+db.medicalCenterUser = require("./schemas/medicalCenterUser")(sequelize, Sequelize);
 db.employeeType = require("./schemas/employeeType")(sequelize, Sequelize);
 db.employee = require("./schemas/employee")(sequelize, Sequelize);
 db.employeeWeight = require("./schemas/employeeWeight")(sequelize, Sequelize);
@@ -85,6 +87,17 @@ db.user.hasMany(db.shopUser);
 db.shopUser.belongsTo(db.user);
 db.userType.hasMany(db.shopUser);
 db.shopUser.belongsTo(db.userType);
+
+db.estate.hasMany(db.medicalCenter);
+db.medicalCenter.belongsTo(db.estate);
+db.division.hasMany(db.medicalCenter);
+db.medicalCenter.belongsTo(db.division);
+db.medicalCenter.hasMany(db.medicalCenterUser);
+db.medicalCenterUser.belongsTo(db.medicalCenter);
+db.user.hasMany(db.medicalCenterUser);
+db.medicalCenterUser.belongsTo(db.user);
+db.userType.hasMany(db.medicalCenterUser);
+db.medicalCenterUser.belongsTo(db.userType);
 
 db.employeeType.hasMany(db.employee);
 db.employee.belongsTo(db.employeeType);

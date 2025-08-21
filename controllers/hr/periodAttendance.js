@@ -70,6 +70,14 @@ exports.search = async (req, rpp, page, callBack) => {
   if(req.status!==undefined){
     where.status = req.status;
   }
+  if(req.user_type===5){
+    where.user_id = req.user_id_1;
+  }
+  if(req.user_type===6 || req.user_type===7 || req.user_type===8 || req.user_type===9 || req.user_type===10){
+    where.id = {
+      [Op.in]: [0]
+    };
+  }
   if(rpp===0){
     periodAttendance.findAndCountAll({
       attributes: ['id', 'from_date', 'to_date', 'user_id', 'estate_id', 'division_id', 'job_id', 'status'],
@@ -111,7 +119,7 @@ exports.search = async (req, rpp, page, callBack) => {
       callBack({error:false, data:data1, errorMessage:""});
     })
     .catch(err=>{
-      callBack({error:true, data:null, errorMessage:err});
+      callBack({error:true, data:null, errorMessage:''});
     });
   }
   else{
@@ -212,7 +220,8 @@ exports.findOne = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    console.log(err);
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -242,173 +251,173 @@ exports.uploadFile = (req, callBack) => {
   })
   .then(data=>{
     if(!data){
-      periodAttendance.create({
-        u_date: u_date,
-        u_time: u_time,
-        user_id: req.body.user_id,
-        estate_id: req.body.estate_id,
-        division_id: req.body.division_id,
-        job_id: req.body.job_id,
-        from_date: req.body.from_date,
-        to_date: req.body.to_date,
-        status: 'finalized'
+      db.estate.findAll({
+        attributes: ['id', 'description'],
+        include: [
+          {
+            model: db.division,
+            attributes: ['id', 'description']
+          },
+        ],
+        where: {status: 'active'}
       })
-      .then(data1=>{
-        var period_attendance_id = data1.id;
-        var result = {id: data1.id, u_date: u_date, u_time: u_time, status: 'finalized'};
-        db.estate.findAll({
-          attributes: ['id', 'description'],
-          include: [
-            {
-              model: db.division,
-              attributes: ['id', 'description']
-            },
-          ],
+      .then(estates=>{
+        db.employee.findAll({
+          attributes: ['id', 'epf_no', 'first_name', 'last_name'],
           where: {status: 'active'}
         })
-        .then(estates=>{
-          db.employee.findAll({
-            attributes: ['id', 'epf_no', 'first_name', 'last_name'],
-            where: {status: 'active'}
-          })
-          .then(employees=>{
-            var job_id = req.body.job_id;
-            var from_date = req.body.from_date;
-            var to_date = req.body.to_date;
-            var estate_id = req.body.estate_id;
-            var division_id = req.body.division_id;
-            var path = (req.file.path).replace(appRoot + "/", "");
-            path = (path).replace(appRoot + '\\', "");
-            path = (path).replaceAll('\\', "/");
-            const results = [];
-            var feedBack = [];
-            fs.createReadStream(path).pipe(parse({
-              comment: '#',
-              columns: true
-            })).on('data', (data)=>{
-              results.push(data);
-            }).on('error', (err2)=>{
-              callBack({error:true, data:[], errorMessage:''});
-            }).on('end', ()=>{
-              if(results.length===0){
-                callBack({error:false, data:feedBack, errorMessage:''});
+        .then(employees=>{
+          var job_id = req.body.job_id;
+          var from_date = req.body.from_date;
+          var to_date = req.body.to_date;
+          var estate_id = req.body.estate_id;
+          var division_id = req.body.division_id;
+          var path = (req.file.path).replace(appRoot + "/", "");
+          path = (path).replace(appRoot + '\\', "");
+          path = (path).replaceAll('\\', "/");
+          const results = [];
+          var feedBack = [];
+          fs.createReadStream(path).pipe(parse({
+            comment: '#',
+            columns: true
+          })).on('data', (data)=>{
+            results.push(data);
+          }).on('error', (err4)=>{
+            callBack({error:true, data:[], errorMessage:''});
+          }).on('end', ()=>{
+            if(results.length===0){
+              callBack({error:false, data:feedBack, errorMessage:''});
+            }
+            var data_out = [];
+            for(let i=0; i<results.length; i++){
+              var val = results[i];
+              var error = false;
+              var error_msg = '';
+              var temp = {};
+              if(val['EPF No'].length===0){
+                error = true;
+                error_msg = 'Invalid EPF Number, ';
+                temp.epf_no = val['EPF No'];
               }
-              var data_out = [];
-              for(let i=0; i<results.length; i++){
-                var val = results[i];
-                var error = false;
-                var error_msg = '';
-                var temp = {};
-                if(val['EPF No'].length===0){
+              else{
+                var employeeIndex = employees.findIndex(val1=>val1.epf_no===val['EPF No'].trimStart().trimEnd());
+                if(employeeIndex===-1){
                   error = true;
-                  error_msg = 'Invalid EPF Number, ';
+                  error_msg = 'Invalid Employee - '+val['EPF No']+', ';
                   temp.epf_no = val['EPF No'];
                 }
                 else{
-                  var employeeIndex = employees.findIndex(val1=>val1.epf_no===val['EPF No'].trimStart().trimEnd());
-                  if(employeeIndex===-1){
-                    error = true;
-                    error_msg = 'Invalid Employee - '+val['EPF No']+', ';
-                    temp.epf_no = val['EPF No'];
-                  }
-                  else{
-                    temp.employee_id = employees[employeeIndex].id;
-                    temp.employee_description = employees[employeeIndex].first_name+' '+employees[employeeIndex].last_name;
-                    temp.epf_no = employees[employeeIndex].epf_no;
-                  }
+                  temp.employee_id = employees[employeeIndex].id;
+                  temp.employee_description = employees[employeeIndex].first_name+' '+employees[employeeIndex].last_name;
+                  temp.epf_no = employees[employeeIndex].epf_no;
                 }
-                if(!error){
-                  if(val['Estate Name'].length===0){
+              }
+              if(!error){
+                if(val['Estate Name'].length===0){
+                  error = true;
+                  error_msg = 'Invalid Estate, ';
+                }
+                else{
+                  var estateIndex = estates.findIndex(val1=>val1.description===val['Estate Name'].trimStart().trimEnd());
+                  if(estateIndex===-1){
                     error = true;
-                    error_msg = 'Invalid Estate, ';
+                    error_msg = 'Invalid Estate - '+val['Estate Name']+', ';
                   }
                   else{
-                    var estateIndex = estates.findIndex(val1=>val1.description===val['Estate Name'].trimStart().trimEnd());
-                    if(estateIndex===-1){
-                      error = true;
-                      error_msg = 'Invalid Estate - '+val['Estate Name']+', ';
-                    }
-                    else{
-                      temp.estate_id = estates[estateIndex].id;
-                      if(val['Division Name']){
-                        if(val['Division Name'].length===0){
-                          error = true;
-                          error_msg = 'Invalid Division, ';
-                        }
-                        else{
-                          var divisions = estates[estateIndex].divisions;
-                          var divisionIndex = divisions.findIndex(val1=>val1.description===val['Division Name'].trimStart().trimEnd());
-                          if(divisionIndex===-1){
-                            error = true;
-                            error_msg = 'Invalid Division - '+val['Division Name']+', ';
-                          }
-                          else{
-                            temp.division_id = divisions[divisionIndex].id;
-                          }
-                        }
-                      }
-                      else{
+                    temp.estate_id = estates[estateIndex].id;
+                    if(val['Division Name']){
+                      if(val['Division Name'].length===0){
                         error = true;
                         error_msg = 'Invalid Division, ';
                       }
+                      else{
+                        var divisions = estates[estateIndex].divisions;
+                        var divisionIndex = divisions.findIndex(val1=>val1.description===val['Division Name'].trimStart().trimEnd());
+                        if(divisionIndex===-1){
+                          error = true;
+                          error_msg = 'Invalid Division - '+val['Division Name']+', ';
+                        }
+                        else{
+                          temp.division_id = divisions[divisionIndex].id;
+                        }
+                      }
+                    }
+                    else{
+                      error = true;
+                      error_msg = 'Invalid Division, ';
                     }
                   }
                 }
-                if(!error){
-                  var days = val['Man Days'].trimStart().trimEnd();
-                  try{
-                    temp.days = parseFloat(days);
-                  }
-                  catch(e){
-                    error = true;
-                    error_msg = 'Invalid Days - '+val['Man Days']+', ';
-                  }
+              }
+              if(!error){
+                var days = val['Man Days'].trimStart().trimEnd();
+                try{
+                  temp.days = parseFloat(days);
                 }
-                if(!error){
-                  var ot = val['Over Time'].trimStart().trimEnd();
-                  try{
-                    temp.ot = parseFloat(ot);
-                  }
-                  catch(e){
-                    error = true;
-                    error_msg = 'Invalid OT - '+val['Over Time']+', ';
-                  }
-                }
-                if(!error){
-                  var weight = val['No of Units'].trimStart().trimEnd();
-                  try{
-                    temp.weight = parseFloat(weight);
-                  }
-                  catch(e){
-                    error = true;
-                    error_msg = 'Invalid Weight - '+val['No of Units']+', ';
-                  }
-                }
-                if(!error){
-                  if(temp.days<=0){
-                    error = true;
-                    error_msg = 'Invalid Days, ';
-                  }
-                }
-                var add = false;
-                if(!error){
-                  if(parseInt(temp.estate_id+'')===parseInt(estate_id+'') && parseInt(temp.division_id+'')===parseInt(division_id+'')){
-                    add = true;
-                  }
-                }
-                if(add){
-                  if(!error){
-                    temp.error = false;
-                    temp.errorMsg = error_msg;
-                    data_out.push(temp);
-                  }
-                  else{
-                    temp.error = true;
-                    temp.errorMsg = error_msg;
-                    data_out.push(temp);
-                  }
+                catch(e){
+                  error = true;
+                  error_msg = 'Invalid Days - '+val['Man Days']+', ';
                 }
               }
+              if(!error){
+                var ot = val['Over Time'].trimStart().trimEnd();
+                try{
+                  temp.ot = parseFloat(ot);
+                }
+                catch(e){
+                  error = true;
+                  error_msg = 'Invalid OT - '+val['Over Time']+', ';
+                }
+              }
+              if(!error){
+                var weight = val['No of Units'].trimStart().trimEnd();
+                try{
+                  temp.weight = parseFloat(weight);
+                }
+                catch(e){
+                  error = true;
+                  error_msg = 'Invalid Weight - '+val['No of Units']+', ';
+                }
+              }
+              if(!error){
+                if(temp.days<=0){
+                  error = true;
+                  error_msg = 'Invalid Days, ';
+                }
+              }
+              var add = false;
+              if(!error){
+                if(parseInt(temp.estate_id+'')===parseInt(estate_id+'') && parseInt(temp.division_id+'')===parseInt(division_id+'')){
+                  add = true;
+                }
+              }
+              if(add){
+                if(!error){
+                  temp.error = false;
+                  temp.errorMsg = error_msg;
+                  data_out.push(temp);
+                }
+                else{
+                  temp.error = true;
+                  temp.errorMsg = error_msg;
+                  data_out.push(temp);
+                }
+              }
+            }
+            periodAttendance.create({
+              u_date: u_date,
+              u_time: u_time,
+              user_id: req.body.user_id,
+              estate_id: req.body.estate_id,
+              division_id: req.body.division_id,
+              job_id: req.body.job_id,
+              from_date: req.body.from_date,
+              to_date: req.body.to_date,
+              status: 'finalized'
+            })
+            .then(data1=>{
+              var period_attendance_id = data1.id;
+              var result = {id: data1.id, u_date: u_date, u_time: u_time, status: 'finalized'};
               for(let i=0; i<data_out.length; i++){
                 var temp = data_out[i];
                 temp.ref = i;
@@ -448,17 +457,17 @@ exports.uploadFile = (req, callBack) => {
                   });
                 }
               }
+            })
+            .catch(err1=>{
+              callBack({error:true, data:null, errorMessage:''});
             });
-          })
-          .catch(err3=>{
-            callBack({error:true, data:null, errorMessage:''});
           });
-         })
-        .catch(err2=>{
+        })
+        .catch(err3=>{
           callBack({error:true, data:null, errorMessage:''});
         });
-      })
-      .catch(err1=>{
+       })
+      .catch(err2=>{
         callBack({error:true, data:null, errorMessage:''});
       });
     }

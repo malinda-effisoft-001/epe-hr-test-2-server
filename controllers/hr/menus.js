@@ -48,7 +48,7 @@ exports.search = async (req, rpp, page, callBack) => {
             callBack({error:false, data:data1, errorMessage:""});
         })
         .catch(err=>{
-            callBack({error:true, data:null, errorMessage:err});
+            callBack({error:true, data:null, errorMessage:''});
         });
     }
     else{
@@ -91,7 +91,7 @@ exports.findOne = (req, callBack) => {
         callBack({error:false, data:data, errorMessage:""});
     })
     .catch(err=>{
-        callBack({error:true, data:null, errorMessage:err});
+        callBack({error:true, data:null, errorMessage:''});
     });
 };
 
@@ -106,7 +106,7 @@ exports.findActive = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -157,7 +157,7 @@ exports.create = async (req, callBack) => {
     }
   })
   .catch(err=>{
-    callBack({error:true, status: "", data:null, errorMessage:err});
+    callBack({error:true, status: "", data:null, errorMessage:''});
   });
 };
 
@@ -224,7 +224,7 @@ exports.edit = (req, callBack) => {
     }
   })
   .catch(err=>{
-    callBack({error:true, status: "", data:null, errorMessage:err});
+    callBack({error:true, status: "", data:null, errorMessage:''});
   });
 };
 

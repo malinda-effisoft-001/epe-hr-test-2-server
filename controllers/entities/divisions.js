@@ -37,9 +37,14 @@ exports.search = async (req, rpp, page, callBack) => {
       [Op.in]: req.estates
     };
   }
-  if(req.user_type===7 || req.user_type===8){
+  else if(req.user_type===7 || req.user_type===8){
     where.id = {
       [Op.in]: req.divisions
+    };
+  }
+  else if(req.user_type===9 || req.user_type===10){
+    where.id = {
+      [Op.in]: [0]
     };
   }
   if(rpp===0){
@@ -73,7 +78,7 @@ exports.search = async (req, rpp, page, callBack) => {
       callBack({error:false, data:data1, errorMessage:""});
     })
     .catch(err=>{
-      callBack({error:true, data:null, errorMessage:err});
+      callBack({error:true, data:null, errorMessage:''});
     });
   }
   else{
@@ -142,7 +147,7 @@ exports.findOne = (req, callBack) => {
         callBack({error:false, data:data, errorMessage:""});
     })
     .catch(err=>{
-        callBack({error:true, data:null, errorMessage:err});
+        callBack({error:true, data:null, errorMessage:''});
     });
 };
 
@@ -153,17 +158,26 @@ exports.findActive = (req, callBack) => {
   if(args.estateId!==undefined){
     where.estate_id = args.estateId;
   }
-  if(args.user_type===5 || args.user_type===6 || args.user_type===7 || args.user_type===8 || args.user_type===9 || args.user_type===10){
-    if(args.estates!==undefined){
-      where.estate_id = {
-        [Op.in]: args.estates
-      };
-    }
-    if(args.divisions!==undefined){
-      where.id = {
-        [Op.in]: args.divisions
-      };
-    }
+  if(args.user_type===5 || args.user_type===6){
+    where.estate_id = {
+      [Op.in]: args.estates
+    };
+  }
+  else if(args.user_type===7 || args.user_type===8){
+    where.estate_id = {
+      [Op.in]: args.estates
+    };
+    where.id = {
+      [Op.in]: args.divisions
+    };
+  }
+  else if(args.user_type===9 || args.user_type===10){
+    where.estate_id = {
+      [Op.in]: args.estates
+    };
+    where.id = {
+      [Op.in]: args.divisions
+    };
   }
   division.findAndCountAll({
     attributes: ['id', 'estate_id', 'code', 'description', 'color', 'image_url', 'lat', 'lng', 'status'],
@@ -179,7 +193,7 @@ exports.findActive = (req, callBack) => {
     callBack({error:false, data:data, errorMessage:""});
   })
   .catch(err=>{
-    callBack({error:true, data:null, errorMessage:err});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
@@ -217,7 +231,7 @@ exports.create = async (req, callBack) => {
             callBack({error:false, status: 'ok', data:data1, errorMessage:""});
           })
           .catch(err1=>{
-            callBack({error:true, status: '', data:null, errorMessage:err1});
+            callBack({error:true, status: '', data:null, errorMessage:''});
           });
         }
         else{
@@ -233,7 +247,7 @@ exports.create = async (req, callBack) => {
         }
     })
     .catch(err=>{
-      callBack({error:true, status: "", data:null, errorMessage:err});
+      callBack({error:true, status: "", data:null, errorMessage:''});
     });
 };
 
@@ -286,7 +300,7 @@ exports.edit = (req, callBack) => {
         callBack({error:false, status: 'ok', data:data1, errorMessage:""});
       })
       .catch(err1=>{
-        callBack({error:true, status: '', data:null, errorMessage:err1});
+        callBack({error:true, status: '', data:null, errorMessage:''});
       });
     }
     else{
@@ -302,7 +316,7 @@ exports.edit = (req, callBack) => {
     }
   })
   .catch(err=>{
-    callBack({error:true, status: "", data:null, errorMessage:err});
+    callBack({error:true, status: "", data:null, errorMessage:''});
   });
 };
 
@@ -334,7 +348,7 @@ exports.deleteImage = (req, callBack) => {
                     callBack({error:false, data:data1, errorMessage:""});
                 })
                 .catch(err1=>{
-                    callBack({error:true, data:null, errorMessage:err1});
+                    callBack({error:true, data:null, errorMessage:''});
                 });
               }
             });
@@ -344,7 +358,7 @@ exports.deleteImage = (req, callBack) => {
         }
     })
     .catch(err=>{
-        callBack({error:true, data:null, errorMessage:err});
+        callBack({error:true, data:null, errorMessage:''});
     });
 };
 
@@ -361,7 +375,7 @@ exports.editImage = (req, callBack) => {
             fs.unlink(appRoot + "/" + data.image_url, (err) => {
               if(err){
                 error1 = true;
-                callBack({error:true, data:null, errorMessage:err});
+                callBack({error:true, data:null, errorMessage:''});
               }
             });
         }
@@ -441,7 +455,7 @@ exports.changeUserStatus = (req, callBack) => {
     callBack({error:false, data:data1, errorMessage:""});
   })
   .catch(err1=>{
-    callBack({error:true, data:null, errorMessage:err1});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 

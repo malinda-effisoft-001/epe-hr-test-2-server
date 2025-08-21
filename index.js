@@ -20,6 +20,7 @@ const usersRoute = require('./routers/entities/users');
 const estatesRoute = require('./routers/entities/estates');
 const divisionsRoute = require('./routers/entities/divisions');
 const shopsRoute = require('./routers/hr/shops');
+const medicalCentersRoute = require('./routers/hr/medicalCenters');
 const employeeTypesRoute = require('./routers/hr/employeeTypes');
 const employeesRoute = require('./routers/hr/employees');
 const jobsRoute = require('./routers/hr/jobs');
@@ -34,6 +35,7 @@ app.use('/users', usersRoute);
 app.use('/estates', estatesRoute);
 app.use('/divisions', divisionsRoute);
 app.use('/shops', shopsRoute);
+app.use('/medical-centers', medicalCentersRoute);
 app.use('/employee-types', employeeTypesRoute);
 app.use('/employees', employeesRoute);
 app.use('/jobs', jobsRoute);
@@ -48,6 +50,7 @@ app.use("/uploads/images/users", express.static(path.join(__dirname+"/uploads/im
 app.use("/uploads/images/estates", express.static(path.join(__dirname+"/uploads/images/estates")));
 app.use("/uploads/images/divisions", express.static(path.join(__dirname+"/uploads/images/divisions")));
 app.use("/uploads/images/shops", express.static(path.join(__dirname+"/uploads/images/shops")));
+app.use("/uploads/images/medical-centers", express.static(path.join(__dirname+"/uploads/images/medical-centers")));
 app.use("/uploads/images/employees", express.static(path.join(__dirname+"/uploads/images/employees")));
 
 const server = http.createServer(app);

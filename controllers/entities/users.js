@@ -316,7 +316,7 @@ exports.search = async (req, rpp, page, callBack) => {
 };
 
 exports.signin = (req, callBack) => {
-  console.log(1111);
+  var output = [];
   let where = {
     [Op.or]: [
       {
@@ -379,14 +379,11 @@ exports.signin = (req, callBack) => {
   })
   .then(data => {
     if(!data){
-      console.log(2222);
       callBack({error:true, data:null, errorMessage:''});
     } 
     else{
-      console.log(3333);
       var compareRes = bcrypt.compareSync(req.password, data.password);
       if(compareRes){
-        console.log(4444);
         var user_out = {
           id: data.id,
           typeId: data.user_type_id,
@@ -397,39 +394,16 @@ exports.signin = (req, callBack) => {
         callBack({error:false, data:user_out, errorMessage:''});
       }
       else{
-        console.log(5555);
-        callBack({error:true, data:null, errorMessage:'compare error'});
+        callBack({error:true, data:null, errorMessage:''});
       }
     };
   })
   .catch(err => {
-    console.log(6666);
-    callBack({error:true, data:err, errorMessage:'user find error'});
+    callBack({error:true, data:null, errorMessage:''});
   });
 };
 
 exports.findByEmail = (req, callBack) => {
-  var estates = [];
-  var divisions = [];
-  var shops = [];
-  var medical_centers = [];
-  var user_out = {
-    id: 1,
-    typeId: 1,
-    typeDescription: 'Admin',
-    name: 'admin001',
-    email: 'admin001@egreen.lk',
-    imageUrl: 'none',
-    status: 'active',
-    estates: estates,
-    divisions: divisions,
-    shops: shops,
-    medicalCenters: medical_centers,
-  };
-  callBack({error:false, data:user_out, errorMessage:''});
-
-
-  /* console.log(7777);
   user.findOne({
     attributes: ['id', "user_type_id", 'first_name', 'last_name', 'phone', 'email', 'image_url', 'status'],
     include: [
@@ -473,11 +447,9 @@ exports.findByEmail = (req, callBack) => {
   })
   .then(data=>{
     if(!data){
-      console.log(8888);
-      callBack({error:true, data:null, errorMessage:'no user'});
+      callBack({error:true, data:null, errorMessage:''});
     }
     else{
-      console.log(9999);
       var estates = [];
       var divisions = [];
       var shops = [];
@@ -609,9 +581,10 @@ exports.findByEmail = (req, callBack) => {
     }
   })
   .catch(err=>{
-    console.log(1010);
-    callBack({error:true, data:err, errorMessage:'find error'});
-  }); */
+    console.log(9999);
+    console.log(err);
+    callBack({error:true, data:null, errorMessage:''});
+  });
 };
 
 function getDivisions(estate_id){

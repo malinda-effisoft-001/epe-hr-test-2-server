@@ -394,12 +394,12 @@ exports.signin = (req, callBack) => {
         callBack({error:false, data:user_out, errorMessage:''});
       }
       else{
-        callBack({error:true, data:null, errorMessage:''});
+        callBack({error:true, data:null, errorMessage:'compare error'});
       }
     };
   })
   .catch(err => {
-    callBack({error:true, data:null, errorMessage:''});
+    callBack({error:true, data:err, errorMessage:'user find error'});
   });
 };
 

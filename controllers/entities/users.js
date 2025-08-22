@@ -447,7 +447,7 @@ exports.findByEmail = (req, callBack) => {
   })
   .then(data=>{
     if(!data){
-      callBack({error:true, data:null, errorMessage:''});
+      callBack({error:true, data:null, errorMessage:'no user'});
     }
     else{
       var estates = [];
@@ -581,9 +581,7 @@ exports.findByEmail = (req, callBack) => {
     }
   })
   .catch(err=>{
-    console.log(9999);
-    console.log(err);
-    callBack({error:true, data:null, errorMessage:''});
+    callBack({error:true, data:err, errorMessage:'find error'});
   });
 };
 

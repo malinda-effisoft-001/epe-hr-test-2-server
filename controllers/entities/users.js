@@ -409,7 +409,27 @@ exports.signin = (req, callBack) => {
 };
 
 exports.findByEmail = (req, callBack) => {
-  console.log(7777);
+  var estates = [];
+  var divisions = [];
+  var shops = [];
+  var medical_centers = [];
+  var user_out = {
+    id: 1,
+    typeId: 1,
+    typeDescription: 'Admin',
+    name: 'admin001',
+    email: 'admin001@egreen.lk',
+    imageUrl: 'none',
+    status: 'active',
+    estates: estates,
+    divisions: divisions,
+    shops: shops,
+    medicalCenters: medical_centers,
+  };
+  callBack({error:false, data:user_out, errorMessage:''});
+
+
+  /* console.log(7777);
   user.findOne({
     attributes: ['id', "user_type_id", 'first_name', 'last_name', 'phone', 'email', 'image_url', 'status'],
     include: [
@@ -591,7 +611,7 @@ exports.findByEmail = (req, callBack) => {
   .catch(err=>{
     console.log(1010);
     callBack({error:true, data:err, errorMessage:'find error'});
-  });
+  }); */
 };
 
 function getDivisions(estate_id){

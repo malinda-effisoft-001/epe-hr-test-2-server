@@ -316,7 +316,7 @@ exports.search = async (req, rpp, page, callBack) => {
 };
 
 exports.signin = (req, callBack) => {
-  var output = [];
+  console.log(1111);
   let where = {
     [Op.or]: [
       {
@@ -379,11 +379,14 @@ exports.signin = (req, callBack) => {
   })
   .then(data => {
     if(!data){
+      console.log(2222);
       callBack({error:true, data:null, errorMessage:''});
     } 
     else{
+      console.log(3333);
       var compareRes = bcrypt.compareSync(req.password, data.password);
       if(compareRes){
+        console.log(4444);
         var user_out = {
           id: data.id,
           typeId: data.user_type_id,
@@ -394,16 +397,19 @@ exports.signin = (req, callBack) => {
         callBack({error:false, data:user_out, errorMessage:''});
       }
       else{
+        console.log(5555);
         callBack({error:true, data:null, errorMessage:'compare error'});
       }
     };
   })
   .catch(err => {
+    console.log(6666);
     callBack({error:true, data:err, errorMessage:'user find error'});
   });
 };
 
 exports.findByEmail = (req, callBack) => {
+  console.log(7777);
   user.findOne({
     attributes: ['id', "user_type_id", 'first_name', 'last_name', 'phone', 'email', 'image_url', 'status'],
     include: [
@@ -447,9 +453,11 @@ exports.findByEmail = (req, callBack) => {
   })
   .then(data=>{
     if(!data){
+      console.log(8888);
       callBack({error:true, data:null, errorMessage:'no user'});
     }
     else{
+      console.log(9999);
       var estates = [];
       var divisions = [];
       var shops = [];
@@ -581,6 +589,7 @@ exports.findByEmail = (req, callBack) => {
     }
   })
   .catch(err=>{
+    console.log(1010);
     callBack({error:true, data:err, errorMessage:'find error'});
   });
 };

@@ -14,7 +14,7 @@ app.use(cors({
 }));
 db.sequelize.sync();
 
-app.get('/', (req, res) => res.send('epe-hr-test-2-server running!'));
+app.get('/', (req, res) => res.send('epe-hr-test-2-server running!!!!!!!'));
 
 const usersRoute = require('./routers/entities/users');
 const estatesRoute = require('./routers/entities/estates');

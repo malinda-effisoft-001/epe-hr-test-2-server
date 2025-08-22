@@ -179,12 +179,7 @@ exports.findActive = (req, callBack) => {
       [Op.in]: args.estates
     };
   }
-  if(args.user_type===7){
-    where.division_id = {
-      [Op.in]: args.divisions
-    };
-  }
-  if(args.user_type===10){
+  else if(args.user_type===10){
     where.id = {
       [Op.in]: args.shops
     };

@@ -57,6 +57,10 @@ exports.search = async (req, rpp, page, callBack) => {
           attributes: ['id', 'description', 'color']
         },
         {
+          model: db.shop,
+          attributes: ['id', 'description', 'color']
+        },
+        {
           model: db.employee,
           attributes: ['id', 'first_name', 'last_name', 'epf_no', 'image_url']
         },
@@ -99,6 +103,10 @@ exports.search = async (req, rpp, page, callBack) => {
           },
           {
             model: db.division,
+            attributes: ['id', 'description', 'color']
+          },
+          {
+            model: db.shop,
             attributes: ['id', 'description', 'color']
           },
           {
@@ -145,6 +153,10 @@ exports.findOne = (req, callBack) => {
       },
       {
         model: db.division,
+        attributes: ['id', 'description', 'color']
+      },
+      {
+        model: db.shop,
         attributes: ['id', 'description', 'color']
       },
       {

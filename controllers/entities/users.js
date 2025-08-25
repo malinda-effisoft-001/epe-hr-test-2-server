@@ -99,6 +99,9 @@ exports.getForEstates = (req, callBack) => {
   else if(req.user_type_id===4){
     where = {user_type_id: 6};
   }
+  else{
+    where = {user_type_id: -1};
+  }
   where.status = "active";
   user.findAndCountAll({
     attributes: ['id', 'user_type_id', 'code', 'first_name', 'last_name', 'email', 'image_url'],
@@ -137,6 +140,9 @@ exports.getForDivisions = (req, callBack) => {
   }
   else if(req.user_type_id===4 || req.user_type_id===6){
     where = {user_type_id: 8};
+  }
+  else{
+    where = {user_type_id: -1};
   }
   where.status = "active";
   user.findAndCountAll({

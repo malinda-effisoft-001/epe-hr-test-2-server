@@ -81,7 +81,7 @@ exports.getForHr = (req, callBack) => {
 
 exports.getForEstates = (req, callBack) => {
   let where = {};
-  if(req.user_type_id===1 || req.user_type_id===2){
+  if(req.user_type===1 || req.user_type===2){
     where = {
       [Op.or]: [
         {
@@ -93,10 +93,10 @@ exports.getForEstates = (req, callBack) => {
       ]
     };
   }
-  else if(req.user_type_id===3){
+  else if(req.user_type===3){
     where = {user_type_id: 5};
   }
-  else if(req.user_type_id===4){
+  else if(req.user_type===4){
     where = {user_type_id: 6};
   }
   else{
@@ -123,7 +123,7 @@ exports.getForEstates = (req, callBack) => {
 
 exports.getForDivisions = (req, callBack) => {
   let where = {};
-  if(req.user_type_id===1 || req.user_type_id===2){
+  if(req.user_type===1 || req.user_type===2){
     where = {
       [Op.or]: [
         {
@@ -135,10 +135,10 @@ exports.getForDivisions = (req, callBack) => {
       ]
     };
   }
-  else if(req.user_type_id===3 || req.user_type_id===5){
+  else if(req.user_type===3 || req.user_type===5){
     where = {user_type_id: 7};
   }
-  else if(req.user_type_id===4 || req.user_type_id===6){
+  else if(req.user_type===4 || req.user_type===6){
     where = {user_type_id: 8};
   }
   else{

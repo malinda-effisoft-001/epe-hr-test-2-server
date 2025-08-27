@@ -269,17 +269,15 @@ exports.findActive = (req, callBack) => {
   let where = {};
   where.status = "active";
   var args = req.search_data;
-  if(args.user_type===5 || args.user_type===6 || args.user_type===7 || args.user_type===8 || args.user_type===9 || args.user_type===10){
-    if(args.estates!==undefined){
-      where.estate_id = {
-        [Op.in]: args.estates
-      };
-    }
-    if(args.divisions!==undefined){
-      where.division_id = {
-        [Op.in]: args.divisions
-      };
-    }
+  if(args.user_type===5 || args.user_type===6){
+    where.estate_id = {
+      [Op.in]: args.estates
+    };
+  }
+  if(args.user_type===7 || args.user_type===8){
+    where.division_id = {
+      [Op.in]: args.divisions
+    };
   }
   employee.findAndCountAll({
     attributes: ['id', 'employee_type_id', 'code', 'barcode', 'epf_no', 'first_name', 'last_name', 'allow_credit', 'vegetarian', 'food_pay_type', 'email', 'image_url'],

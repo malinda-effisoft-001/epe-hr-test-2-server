@@ -30,6 +30,7 @@ const periodAttendanceRoute = require('./routers/hr/periodAttendance');
 const shopDebitsRoute = require('./routers/hr/shopDebits');
 const shopCreditsRoute = require('./routers/hr/shopCredits');
 const salaryAdvancesRoute = require('./routers/hr/salaryAdvances');
+const shopResetsRoute = require('./routers/hr/shopResets');
 
 app.use('/users', usersRoute);
 app.use('/estates', estatesRoute);
@@ -45,6 +46,7 @@ app.use('/period-attendance', periodAttendanceRoute);
 app.use('/shop-debits', shopDebitsRoute);
 app.use('/shop-credits', shopCreditsRoute);
 app.use('/salary-advances', salaryAdvancesRoute);
+app.use('/shop-resets', shopResetsRoute);
 
 app.use("/uploads/images/users", express.static(path.join(__dirname+"/uploads/images/users")));
 app.use("/uploads/images/estates", express.static(path.join(__dirname+"/uploads/images/estates")));

@@ -385,10 +385,15 @@ exports.issue = async (req, callBack) => {
   var employee_id = req.body.employee_id;
   var food_pay_type = req.body.food_pay_type;
   var weight = req.body.weight;
+  var pay_status = 'pending';
+  if(food_pay_type==='weight'){
+    pay_status = 'paid';
+  }
   foodOrder.update(
     {
       food_pay_type: food_pay_type,
       weight: weight,
+      pay_status: pay_status,
       status: 'issued'
     }, 
     {

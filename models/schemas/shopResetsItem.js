@@ -27,9 +27,21 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
-      status: {
-        type: Sequelize.STRING(32),
-        allowNull: false
+      food_payments: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+      },
+      advances: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+      },
+      purchases: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+      },
+      loans: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
       }
     }, 
     {

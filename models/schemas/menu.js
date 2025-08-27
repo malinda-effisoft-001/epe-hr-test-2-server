@@ -23,6 +23,10 @@ module.exports = (sequelize, Sequelize) => {
               type: Sequelize.FLOAT,
               allowNull: false
           },
+          amount: {
+              type: Sequelize.FLOAT,
+              allowNull: false
+          },
           status: {
               type: Sequelize.STRING(32),
               allowNull: false

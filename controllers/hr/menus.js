@@ -82,7 +82,7 @@ exports.search = async (req, rpp, page, callBack) => {
 
 exports.findOne = (req, callBack) => {
     menu.findOne({
-        attributes: ['id', 'code', 'description', 'color', 'weight', 'status'],
+        attributes: ['id', 'code', 'description', 'color', 'weight', 'amount', 'status'],
         where: {
           id: req.id
         }
@@ -99,7 +99,7 @@ exports.findActive = (req, callBack) => {
   let where = {};
   where.status = "active";
   menu.findAndCountAll({
-    attributes: ['id', 'code', 'description', 'color', 'weight', 'status'],
+    attributes: ['id', 'code', 'description', 'color', 'weight', 'amount', 'status'],
     where: where
   })
   .then(data=>{
@@ -134,6 +134,7 @@ exports.create = async (req, callBack) => {
           code: req.body.code,
           description: req.body.description,
           weight: req.body.weight,
+          amount: req.body.amount,
           color: req.body.color,
           status: req.body.status
       })
@@ -195,6 +196,7 @@ exports.edit = (req, callBack) => {
           description: req.body.description,
           code: req.body.code,
           weight: req.body.weight,
+          amount: req.body.amount,
           color: req.body.color,
           status: req.body.status
         }, 

@@ -215,7 +215,7 @@ exports.issue = (req, callBack) => {
         estate_id: req.estate_id,
         division_id: req.division_id,
         employee_id: req.employee_id,
-        tra_description: 'Shop Credit',
+        tra_description: 'Purchase',
         tra_ref: data.id,
         tra_item_ref: -1,
         tra_type: 'CREDIT',

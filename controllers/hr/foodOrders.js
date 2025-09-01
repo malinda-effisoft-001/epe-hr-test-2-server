@@ -54,19 +54,18 @@ exports.search = async (req, rpp, page, callBack) => {
     where.status = req.status;
   }
   if(req.user_type===5){
-    if(req.estates!==undefined){
-      where.estate_id = {
-        [Op.in]: req.estates
-      };
-    }
-    if(req.divisions!==undefined){
-      where.division_id = {
-        [Op.in]: req.divisions
-      };
-    }
+    where.estate_id = {
+      [Op.in]: req.estates
+    };
   }
-  if(req.user_type===7){
+  else if(req.user_type===7){
+    where.division_id = {
+      [Op.in]: req.divisions
+    };
     where.user_id = req.request_user_id;
+  }
+  else if(req.user_type===4 || req.user_type===6 || req.user_type===8 || req.user_type===9 || req.user_type===10){
+    where.user_id = -1;
   }
   if(rpp===0){
     foodOrder.findAndCountAll({
@@ -466,17 +465,19 @@ exports.getReport = (req, callBack) => {
     where.division_id = req.division_id;
   }
   where.status = {[Op.or]: ['selected', 'issued']};
-  if(req.user_type===5 || req.user_type===6 || req.user_type===7 || req.user_type===8 || req.user_type===9 || req.user_type===10){
-    if(req.estates!==undefined){
-      where.estate_id = {
-        [Op.in]: req.estates
-      };
-    }
-    if(req.divisions!==undefined){
-      where.division_id = {
-        [Op.in]: req.divisions
-      };
-    }
+  if(req.user_type===5){
+    where.estate_id = {
+      [Op.in]: req.estates
+    };
+  }
+  else if(req.user_type===7){
+    where.division_id = {
+      [Op.in]: req.divisions
+    };
+    where.user_id = req.request_user_id;
+  }
+  else if(req.user_type===4 || req.user_type===6 || req.user_type===8 || req.user_type===9 || req.user_type===10){
+    where.user_id = -1;
   }
   foodOrder.findAndCountAll({
     attributes: ['id', 'u_date', 'estate_id', 'division_id', 'employee_id', 'menu_id', 'food_pay_type', 'weight', 'pay_status'],

@@ -145,8 +145,6 @@ db.estate.hasMany(db.shopAccount);
 db.shopAccount.belongsTo(db.estate);
 db.division.hasMany(db.shopAccount);
 db.shopAccount.belongsTo(db.division);
-db.job.hasMany(db.shopAccount);
-db.shopAccount.belongsTo(db.job);
 db.employee.hasMany(db.shopAccount);
 db.shopAccount.belongsTo(db.employee);
 

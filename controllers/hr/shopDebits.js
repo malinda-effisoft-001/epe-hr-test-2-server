@@ -395,7 +395,7 @@ function createItem(shop_debit_id, user_id, estate_id, division_id, from_date, t
             estate_id: estate_id,
             division_id: division_id,
             employee_id: item.employee_id,
-            tra_description: 'Shop Debit',
+            tra_description: 'Debit',
             tra_ref: shop_debit_id,
             tra_item_ref: data.id,
             tra_type: 'DEBIT',

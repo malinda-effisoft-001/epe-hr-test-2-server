@@ -174,8 +174,8 @@ exports.findOne = (req, callBack) => {
         attributes: ['id', 'description', 'color']
       },
       {
-        model: db.shopDebitsItem,
-        attributes: ['id', 'employee_id', 'from_date', 'to_date', 'days', 'amount', 'food_payments', 'advances', 'purchases', 'loans'],
+        model: db.shopResetsItem,
+        attributes: ['id', 'employee_id', 'from_date', 'to_date', 'debits', 'food_payments', 'advances', 'purchases', 'loans'],
         include: [
           {
             model: db.estate,

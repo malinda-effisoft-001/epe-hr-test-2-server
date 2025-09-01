@@ -27,6 +27,14 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      from_date: {
+        type: Sequelize.STRING(32),
+        allowNull: false
+      },
+      to_date: {
+        type: Sequelize.STRING(32),
+        allowNull: false
+      },
       status: {
         type: Sequelize.STRING(32),
         allowNull: false

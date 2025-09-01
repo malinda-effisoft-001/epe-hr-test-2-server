@@ -19,11 +19,19 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      from_date: {
+        type: Sequelize.STRING(32),
+        allowNull: false
+      },
+      to_date: {
+        type: Sequelize.STRING(32),
+        allowNull: false
+      },
       employee_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      amount: {
+      debits: {
         type: Sequelize.FLOAT,
         allowNull: false,
       },

@@ -574,7 +574,7 @@ exports.searchBulk = (req, callBack) => {
       },
       {
         model: db.employee,
-        attributes: ['id', 'epf_no', 'first_name', 'last_name', 'image_url']
+        attributes: ['id', 'epf_no', 'first_name', 'last_name']
       },
     ],
     where: where
